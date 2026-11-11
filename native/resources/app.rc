@@ -1,0 +1,6 @@
+#include "resource.h"
+
+IDI_APP_ICON        ICON        "app.ico"
+IDR_LOGO_PNG        RCDATA      "logo_ui.png"
+IDR_CLOUDFLARED_EXE RCDATA      "../third_party/cloudflared.exe"
+1                   24          "app.manifest"

@@ -1,93 +1,114 @@
-<h1 align="center">
-  <img src="logo.png" width="38" height="38" valign="middle" alt="LensAnywhere Logo" /> LensAnywhere
-</h1>
+<p align="center">
+  <img src="python/logo.png" alt="LensAnywhere Logo" width="96" height="96" />
+</p>
+
+<h1 align="center">LensAnywhere-Native</h1>
 
 <p align="center">
-  <b>Seamless visual search on Windows powered by Google Lens</b>
+  <b>Lightweight Windows visual search utility powered by Google Lens (Native C++20 Edition)</b>
 </p>
 
 <p align="center">
-  <a href="https://github.com/utkarsh05kul/LensAnywhere-Desktop/releases"><img src="https://img.shields.io/badge/release-v1.0.0-2563EB?style=flat-square" alt="Latest Release"></a>
-  <a href="https://github.com/utkarsh05kul/LensAnywhere-Desktop/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-38BDF8?style=flat-square" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/Platform-Windows-0284C7?style=flat-square" alt="Platform">
-  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square" alt="Python Version">
+  <a href="https://github.com/aisthegoat/LensAnywhere-Native/releases"><img src="https://img.shields.io/badge/Releases-Download-2563EB?style=flat-square" alt="Releases"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-38BDF8?style=flat-square" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/Platform-Windows%2010%2F11-0284C7?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/C%2B%2B-20%20(Win32%20%2B%20GDI%2B)-blue?style=flat-square" alt="C++20">
 </p>
 
 ---
 
-## 🎯 Objective
+## Overview
 
-**LensAnywhere** is a lightweight desktop utility for Windows that enables instant visual search for any portion of your screen. 
+**LensAnywhere-Native** is an optimized fork of [utkarsh05kul/LensAnywhere-Desktop](https://github.com/utkarsh05kul/LensAnywhere-Desktop) by **Utkarsh Kulshrestha** (`@utkarsh05kul`).
 
-By pressing a customizable global hotkey, you can crop any on-screen element and immediately trigger a **Google Lens** search in your default web browser—without browser extensions or third-party image hosting services.
+It lets you capture any region of your Windows screen with a customizable global hotkey and instantly search it on **Google Lens** in your default browser — without browser extensions or external image hosting.
 
----
+### Key Improvements in This Fork
 
-## 🚀 Download Desktop App (Executable)
-
-If you just want to use the app without running Python scripts:
-
-1. Go to the **[GitHub Releases Page](https://github.com/utkarsh05kul/LensAnywhere-Desktop/releases)**.
-2. Download the latest `LensAnywhere.exe` file.
-3. Run `LensAnywhere.exe` directly—no installation or extra setup required!
-
----
-
-## ✨ Key Features
-
-- ✂️ **Instant Region Cropping**: Capture any screen region using a global hotkey combination.
-- 🌐 **Direct Lens Search**: Opens visual search directly in your browser with zero 3rd-party image uploads.
-- 📋 **Clipboard & Auto-Save**: Optionally copy captures to your clipboard or save directly to a designated folder.
-- ⚡ **Background System Tray**: Runs quietly in the system tray with minimal memory and CPU usage.
+- **Fixed Persistent Configuration (`%APPDATA%\LensAnywhere\settings.json`)**: Fixes the bug where settings and `onboarding_completed` were written inside PyInstaller's temporary `_MEI*` folder and lost on every launch.
+- **Native C++20 Win32 + GDI+ Rewrite (`native/`)**: Removes the Python/PySide6 runtime and PyInstaller `--onefile` bootloader overhead:
+  - **Idle RAM**: ~`2.2 MB` private memory (`< 1 MB` working set after trim) vs ~`87–110 MB` RSS in the original PySide6 build.
+  - **Instant Startup**: No temporary extraction (`_MEI*`) on every launch; `cloudflared.exe` is cached once in `%LOCALAPPDATA%\LensAnywhere\`.
+  - **Single Instance & Clean Lifecycle**: Named mutex prevents duplicate tray instances, and `cloudflared.exe` is bound to a Windows Job Object so it exits cleanly with the app.
+- **Fixed Python Reference Version (`python/`)**: Keeps the original PySide6 implementation updated with persistent `%APPDATA%` config storage.
 
 ---
 
-## 🛠️ How It Works
+## Download
 
+1. Open the **[Releases](https://github.com/aisthegoat/LensAnywhere-Native/releases)** page.
+2. Download `LensAnywhere.exe`.
+3. Run `LensAnywhere.exe` directly — no installation required.
+
+---
+
+## Features
+
+- **Instant Region Cropping**: Per-monitor DPI-aware translucent overlay (`Shift+Alt+S` by default, customizable in Settings).
+- **Direct Google Lens Search**: Serves captures from RAM over an ephemeral Cloudflare Tunnel (`trycloudflare.com`).
+- **Clipboard & Auto-Save**: Optional automatic copy to clipboard (`CF_DIB`) and saving PNG captures to a chosen folder.
+- **Background System Tray**: Minimal footprint with dark-themed Settings and Welcome windows built with native Win32/GDI+.
+
+---
+
+## Building the Native Edition (Windows)
+
+### Prerequisites
+
+- **MinGW-w64 / LLVM-MinGW** (`g++` with C++20 support and `windres`)
+- Internet access on first build (to download `cloudflared-windows-amd64.exe`), or pass an existing `cloudflared.exe` via `-CloudflaredPath`
+
+### Build
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\native\build.ps1
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌────────────────────────┐     ┌─────────────────────┐
-│ Press Hotkey    │ ──> │ Capture Region   │ ──> │ Serve Image via RAM    │ ──> │ Open Google Lens in │
-│ (Ctrl+Shift+Alt+S)│   │ Screen Overlay   │     │ Ephemeral Cloudflare   │     │ Default Web Browser │
-└─────────────────┘     └──────────────────┘     └────────────────────────┘     └─────────────────────┘
+
+Or using an existing `cloudflared.exe`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\native\build.ps1 -CloudflaredPath "C:\path\to\cloudflared.exe"
 ```
 
-1. **Trigger**: Activate the capture overlay using your custom global hotkey.
-2. **Select**: Draw a crop box over the region you want to search.
-3. **Stream**: The captured region is held temporarily in RAM and served locally via an ephemeral Cloudflare Tunnel (`trycloudflare.com`).
-4. **Search**: LensAnywhere generates a direct Google Lens URL (`https://lens.google.com/uploadbyurl?url=...`) and opens it in your default web browser.
+The standalone executable will be created at `native\build\LensAnywhere.exe`.
 
 ---
 
-## 💻 Tech Stack
+## Running the Python Edition (Optional)
 
-- **UI Framework**: [PySide6](https://pypi.org/project/PySide6/) (Qt6 for Python)
-- **Language**: Python 3.10+
-- **Tunneling**: [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) (`cloudflared`)
-- **System Hooks**: Native Windows Global Hotkeys & System Tray Integration
-
----
-
-## 🔒 Privacy & Legal Disclaimer
-
-> **Important Notice:**
-> 
-> 1. **Data Handling**: LensAnywhere does **not** store, collect, or transmit your captured screenshots to any external server or third-party storage service. Screen captures are passed directly to Google Lens in your default browser.
-> 2. **Non-Affiliation**: LensAnywhere is an independent open-source utility created by Utkarsh Kulshrestha and is not affiliated, endorsed, authorized, or in any way officially connected with **Google LLC**.
-> 3. **Trademarks**: *Google Lens* is a registered trademark of Google LLC.
-> 4. **Service Changes**: Visual search functionality is powered by Google Lens. LensAnywhere holds no responsibility for search accuracy or changes to Google Lens policies and services.
-
----
-
-## 📄 License
-
-This project is licensed under the **[MIT License](LICENSE)**.
-
----
-
-## 👤 Author
-
-Crafted with ❤️ by **Utkarsh Kulshrestha**
-
-- **GitHub**: [@utkarsh05kul](https://github.com/utkarsh05kul)
-- **Repository**: [LensAnywhere-Desktop](https://github.com/utkarsh05kul/LensAnywhere-Desktop)
+```powershell
+cd python
+pip install PySide6
+# Place cloudflared.exe inside python\
+python main3.py
 ```
+
+---
+
+## Configuration Location
+
+Settings are stored persistently per user at:
+
+```text
+%APPDATA%\LensAnywhere\settings.json
+```
+
+The cached `cloudflared.exe` binary (for the native build) is extracted once to:
+
+```text
+%LOCALAPPDATA%\LensAnywhere\cloudflared.exe
+```
+
+---
+
+## Privacy & Legal Disclaimer
+
+- **Data Handling**: LensAnywhere does not upload or persist screenshots on third-party image hosts; captures stay in memory and are streamed locally through your ephemeral Cloudflare Tunnel directly to Google Lens.
+- **Non-Affiliation**: Independent open-source utility, not affiliated with or endorsed by Google LLC. *Google Lens* is a trademark of Google LLC.
+
+---
+
+## Credits & License
+
+- **Original Author & Design**: [Utkarsh Kulshrestha (@utkarsh05kul)](https://github.com/utkarsh05kul) — [utkarsh05kul/LensAnywhere-Desktop](https://github.com/utkarsh05kul/LensAnywhere-Desktop)
+- **License**: [MIT License](LICENSE)
