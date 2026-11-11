@@ -1,14 +1,10 @@
 # Build artifacts
 native/build/
 native/third_party/
-python/build/
-python/dist/
-python/__pycache__/
 *.o
 *.obj
 *.res
 *.exe
-*.spec
 *.tmp
 
 # User config & IDE

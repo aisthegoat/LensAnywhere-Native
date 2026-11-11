@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="python/logo.png" alt="LensAnywhere Logo" width="96" height="96" />
+  <img src="assets/logo.png" alt="LensAnywhere Logo" width="96" height="96" />
 </p>
 
 <h1 align="center">LensAnywhere-Native</h1>
@@ -30,7 +30,6 @@ It lets you capture any region of your Windows screen with a customizable global
   - **Idle RAM**: ~`2.2 MB` private memory (`< 1 MB` working set after trim) vs ~`87–110 MB` RSS in the original PySide6 build.
   - **Instant Startup**: No temporary extraction (`_MEI*`) on every launch; `cloudflared.exe` is cached once in `%LOCALAPPDATA%\LensAnywhere\`.
   - **Single Instance & Clean Lifecycle**: Named mutex prevents duplicate tray instances, and `cloudflared.exe` is bound to a Windows Job Object so it exits cleanly with the app.
-- **Fixed Python Reference Version (`python/`)**: Keeps the original PySide6 implementation updated with persistent `%APPDATA%` config storage.
 
 ---
 
@@ -71,17 +70,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\native\build.ps1 -Cloudfla
 ```
 
 The standalone executable will be created at `native\build\LensAnywhere.exe`.
-
----
-
-## Running the Python Edition (Optional)
-
-```powershell
-cd python
-pip install PySide6
-# Place cloudflared.exe inside python\
-python main3.py
-```
 
 ---
 
